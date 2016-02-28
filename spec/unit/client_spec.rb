@@ -3,7 +3,7 @@ require 'spec_helper'
 module Capybara::Poltergeist
   describe Client do
     let(:server) { double(port: 6000) }
-    let(:client_params) { {} }
+    let(:client_params) { (ENV['TRAVIS'] && ENV['PHANTOMJS']) ? { path: ENV['PHANTOMJS'] } : {} }
     subject { Client.new(server, client_params) }
 
     context '#initialize' do
