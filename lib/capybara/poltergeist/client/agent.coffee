@@ -42,7 +42,7 @@ class PoltergeistAgent
       else
         results = within.querySelectorAll(selector)
 
-      this.register(el) for el in results
+      @register(el) for el in results
     catch error
       # DOMException.INVALID_EXPRESSION_ERR is undefined, using pure code
       if error.code == DOMException.SYNTAX_ERR || error.code == 51
@@ -62,15 +62,15 @@ class PoltergeistAgent
     @nodes[id] or= new PoltergeistAgent.Node(this, @elements[id])
 
   nodeCall: (id, name, args) ->
-    node = this.get(id)
+    node = @get(id)
     throw new PoltergeistAgent.ObsoleteNode if node.isObsolete()
     node[name].apply(node, args)
 
   beforeUpload: (id) ->
-    this.get(id).setAttribute('_poltergeist_selected', '')
+    @get(id).setAttribute('_poltergeist_selected', '')
 
   afterUpload: (id) ->
-    this.get(id).removeAttribute('_poltergeist_selected')
+    @get(id).removeAttribute('_poltergeist_selected')
 
   clearLocalStorage: ->
     localStorage.clear()
@@ -165,7 +165,7 @@ class PoltergeistAgent.Node
     @element.textContent
 
   visibleText: ->
-    if this.isVisible()
+    if @isVisible()
       if @element.nodeName == "TEXTAREA"
         @element.textContent
       else
@@ -183,8 +183,7 @@ class PoltergeistAgent.Node
 
   getAttributes: ->
     attrs = {}
-    for attr in @element.attributes
-      attrs[attr.name] = attr.value.replace("\n","\\n");
+    attrs[name] = value.replace("\n", "\\n") for {name, value} in @element.attributes
     attrs
 
   getAttribute: (name) ->
@@ -198,7 +197,7 @@ class PoltergeistAgent.Node
     #Sometimes scrollIntoViewIfNeeded doesn't seem to work, not really sure why.
     #Just calling scrollIntoView doesnt work either, however calling scrollIntoView
     #after scrollIntoViewIfNeeded when element is not in the viewport does appear to work
-    @element.scrollIntoView() unless this.isInViewport()
+    @element.scrollIntoView() unless @isInViewport()
 
   value: ->
     if @element.tagName == 'SELECT' && @element.multiple
@@ -212,23 +211,23 @@ class PoltergeistAgent.Node
     if (@element.maxLength >= 0)
       value = value.substr(0, @element.maxLength)
 
-    this.trigger('focus')
+    @trigger('focus')
     @element.value = ''
 
     if @element.type == 'number'
       @element.value = value
     else
       for char in value
-        keyCode = this.characterToKeyCode(char)
-        this.keyupdowned('keydown', keyCode)
+        keyCode = @characterToKeyCode(char)
+        @keyupdowned('keydown', keyCode)
         @element.value += char
 
-        this.keypressed(false, false, false, false, char.charCodeAt(0), char.charCodeAt(0))
-        this.keyupdowned('keyup', keyCode)
+        @keypressed(false, false, false, false, char.charCodeAt(0), char.charCodeAt(0))
+        @keyupdowned('keyup', keyCode)
 
-    this.changed()
-    this.input()
-    this.trigger('blur')
+    @changed()
+    @input()
+    @trigger('blur')
 
   isMultiple: ->
     @element.multiple
@@ -245,12 +244,12 @@ class PoltergeistAgent.Node
     else if value == false && !@element.parentNode.multiple
       false
     else
-      this.trigger('focus', @element.parentNode)
+      @trigger('focus', @element.parentNode)
 
       @element.selected = value
-      this.changed()
+      @changed()
 
-      this.trigger('blur', @element.parentNode)
+      @trigger('blur', @element.parentNode)
       true
 
   tagName: ->
@@ -319,7 +318,7 @@ class PoltergeistAgent.Node
     # Elements inside an SVG return underfined for getClientRects???
     rect = @element.getClientRects()[0] || @element.getBoundingClientRect()
     throw new PoltergeistAgent.ObsoleteNode unless rect
-    frameOffset = this.frameOffset()
+    frameOffset = @frameOffset()
 
     pos = {
       top:    rect.top    + frameOffset.top,
@@ -340,9 +339,9 @@ class PoltergeistAgent.Node
         false, false, false, false, 0, null
       )
     else if Node.EVENTS.FOCUS.indexOf(name) != -1
-      event = this.obtainEvent(name)
+      event = @obtainEvent(name)
     else if Node.EVENTS.FORM.indexOf(name) != -1
-      event = this.obtainEvent(name)
+      event = @obtainEvent(name)
     else
       throw "Unknown event"
 
@@ -354,7 +353,7 @@ class PoltergeistAgent.Node
     event
 
   mouseEventTest: (x, y) ->
-    frameOffset = this.frameOffset()
+    frameOffset = @frameOffset()
 
     x -= frameOffset.left
     y -= frameOffset.top
@@ -367,9 +366,9 @@ class PoltergeistAgent.Node
       else
         el = el.parentNode
 
-    { status: 'failure', selector: origEl && this.getSelector(origEl) }
+    { status: 'failure', selector: origEl && @getSelector(origEl) }
   getSelector: (el) ->
-    selector = if el.tagName != 'HTML' then this.getSelector(el.parentNode) + ' ' else ''
+    selector = if el.tagName != 'HTML' then @getSelector(el.parentNode) + ' ' else ''
     selector += el.tagName.toLowerCase()
     selector += "##{el.id}" if el.id
 
