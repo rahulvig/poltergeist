@@ -803,7 +803,9 @@ describe Capybara::Session do
 
         expect {
           @session.within_frame('omg') { }
-        }.to raise_error(Capybara::Poltergeist::FrameNotFound)
+        }.to raise_error { |e|
+          expect(e).to be_a(Capybara::Poltergeist::FrameNotFound).or be_a(Capybara::ElementNotFound)
+        }
       end
     end
 

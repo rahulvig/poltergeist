@@ -22,7 +22,6 @@ class Poltergeist.WebPage
     @state           = 'default'
     @urlWhitelist    = []
     @urlBlacklist    = []
-    @frames          = []
     @errors          = []
     @_networkTraffic = {}
     @_tempHeaders    = {}
@@ -286,24 +285,21 @@ class Poltergeist.WebPage
     @setCustomHeaders(allHeaders)
 
   pushFrame: (name) ->
-    if @native().switchToFrame(name)
-      @frames.push(name)
-      return true
-    else
-      frame_no = @native().evaluate(
-        (frame_name) ->
-          frames = document.querySelectorAll("iframe, frame")
-          (idx for f, idx in frames when f?['name'] == frame_name or f?['id'] == frame_name)[0]
-        , name)
-      if frame_no? and @native().switchToFrame(frame_no)
-        @frames.push(name)
-        return true
-      else
-        return false
+    return true if @native().switchToFrame(name)
 
-  popFrame: ->
-    @frames.pop()
-    @native().switchToParentFrame()
+    # if switch by name fails - find index and try again
+    frame_no = @native().evaluate(
+      (frame_name) ->
+        frames = document.querySelectorAll("iframe, frame")
+        (idx for f, idx in frames when f?['name'] == frame_name or f?['id'] == frame_name)[0]
+      , name)
+    frame_no? and @native().switchToFrame(frame_no)
+
+  popFrame: (pop_all = false)->
+    if pop_all
+      @native().switchToMainFrame()
+    else
+      @native().switchToParentFrame()
 
   dimensions: ->
     scroll   = @scrollPosition()
