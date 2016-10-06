@@ -1,0 +1,11 @@
+source 'https://rubygems.org/'
+
+gemspec :path => '..'
+
+platforms :rbx do
+  gem 'rubysl'
+  gem 'racc'
+  gem 'json'
+end
+
+gem 'phantomjs', '~> 2.1.1.0', :require => 'phantomjs/poltergeist'

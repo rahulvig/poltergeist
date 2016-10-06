@@ -10,6 +10,11 @@ require 'capybara/poltergeist'
 require 'support/test_app'
 require 'support/spec_logger'
 
+begin
+  require 'phantomjs'
+rescue LoadError
+end
+
 Capybara.register_driver :poltergeist do |app|
   debug = !ENV['DEBUG'].nil?
   options = {
@@ -18,7 +23,10 @@ Capybara.register_driver :poltergeist do |app|
     debug: debug
   }
 
-  options[:phantomjs] = ENV['PHANTOMJS'] if ENV['TRAVIS'] && ENV['PHANTOMJS']
+  if defined? Phantomjs
+    options[:phantomjs] = Phantomjs.path
+    puts "Testing with PhantomJS #{Phantomjs.version}"
+  end
 
   Capybara::Poltergeist::Driver.new(
     app, options

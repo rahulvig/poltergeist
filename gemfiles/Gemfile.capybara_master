@@ -10,3 +10,5 @@ platforms :rbx do
   gem 'racc'
   gem 'json'
 end
+
+gem 'phantomjs', '>= 2.1.1.0', :require => 'phantomjs/poltergeist'
