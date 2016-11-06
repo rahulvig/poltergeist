@@ -128,7 +128,7 @@ module Capybara::Poltergeist
     end
 
     def click
-      command :click
+      command :trigger, 'click'
     end
 
     def right_click

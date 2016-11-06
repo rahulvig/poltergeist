@@ -189,7 +189,7 @@ module Capybara::Poltergeist
     end
 
     def click(page_id, id)
-      command 'click', page_id, id
+      command 'trigger', page_id, id, 'click'
     end
 
     def right_click(page_id, id)
